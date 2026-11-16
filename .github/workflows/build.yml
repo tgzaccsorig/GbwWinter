@@ -1,0 +1,32 @@
+name: Build WinterWonderland
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Extract source
+        run: unzip -q WinterWonderland-Source.zip -d .
+
+      - name: Build plugin
+        run: mvn -f WinterWonderland/pom.xml clean package
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: WinterWonderland-Plugin
+          path: WinterWonderland/target/*.jar
