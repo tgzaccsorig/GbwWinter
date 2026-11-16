@@ -13,20 +13,27 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
-          cache: maven
 
       - name: Extract source
-        run: unzip -q WinterWonderland-Source.zip -d .
+        run: |
+          unzip -q GoodBadWorldWinter-Source-1.21.4.zip -d source
 
-      - name: Build plugin
-        run: mvn -f WinterWonderland/pom.xml clean package
+      - name: Locate Maven project
+        run: find source -name pom.xml
 
-      - name: Upload JAR
+      - name: Build
+        run: |
+          POM=$(find source -name pom.xml | head -n 1)
+          test -n "$POM"
+          mvn -f "$POM" clean package
+
+      - name: Upload plugin
         uses: actions/upload-artifact@v4
         with:
-          name: WinterWonderland-Plugin
-          path: WinterWonderland/target/*.jar
+          name: WinterWonderland
+          path: source/**/target/*.jar
+          if-no-files-found: error
